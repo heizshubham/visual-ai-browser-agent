@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Visual Activity Agent",
+  "version": "1.0.0",
+  "description": "Captures consented browser interactions and sends them to a local activity API.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["http://localhost:8787/*"],
+  "background": {"service_worker": "background.js"},
+  "action": {"default_popup": "popup.html", "default_title": "Visual Activity Agent"},
+  "content_scripts": [{"matches": ["http://*/*", "https://*/*"], "js": ["content.js"], "run_at": "document_idle"}]
+}

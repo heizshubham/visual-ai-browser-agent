@@ -16,6 +16,10 @@ class EventStoreTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             add_event({"eventType": "click"})
 
+    def test_rejects_invalid_limit(self):
+        with self.assertRaises(ValueError):
+            list_events(0)
+
 
 if __name__ == "__main__":
     unittest.main()

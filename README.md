@@ -61,7 +61,14 @@ Returns API and database status.
 
 ```bash
 python3 -m unittest discover -s tests -v
+python3 -m compileall -q backend tests
+node --check extension/background.js
+node --check extension/content.js
+node --check extension/popup.js
+python3 -m json.tool extension/manifest.json >/dev/null
 ```
+
+No third-party build step is required. To create an uploadable extension archive, run `zip -r visual-activity-agent.zip extension` from the repository root.
 
 ## Demo flow
 

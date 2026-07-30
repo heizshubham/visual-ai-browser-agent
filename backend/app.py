@@ -27,6 +27,9 @@ def connect():
             created_at TEXT NOT NULL
         )
     """)
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at DESC)"
+    )
     return connection
 
 
@@ -57,6 +60,8 @@ def add_event(payload):
 
 
 def list_events(limit=100):
+    if not isinstance(limit, int) or limit < 1:
+        raise ValueError("limit must be a positive integer")
     with connect() as connection:
         rows = connection.execute(
             "SELECT * FROM events ORDER BY created_at DESC LIMIT ?", (min(limit, 500),)
@@ -82,10 +87,14 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         if parsed.path == "/health":
+            connect().close()
             return self.send_json(200, {"status": "ok", "database": str(DB_PATH)})
         if parsed.path == "/api/events":
-            limit = int(parse_qs(parsed.query).get("limit", ["100"])[0])
-            return self.send_json(200, {"events": list_events(limit)})
+            try:
+                limit = int(parse_qs(parsed.query).get("limit", ["100"])[0])
+                return self.send_json(200, {"events": list_events(limit)})
+            except ValueError as error:
+                return self.send_json(400, {"error": str(error)})
         self.send_json(404, {"error": "Not found"})
 
     def do_POST(self):
